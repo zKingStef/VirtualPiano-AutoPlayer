@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using Microsoft.Win32;
+using System.IO;
+using System.Windows;
 using System.Windows.Forms;
 using WindowsInput;
 using WindowsInput.Native;
@@ -20,7 +22,6 @@ namespace VirtualPiano_AutoPlayer
 
         private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            // Hole das Music Sheet aus der TextBox
             string musicSheet = MusicSheetInput.Text;
 
             if (string.IsNullOrWhiteSpace(musicSheet))
@@ -29,7 +30,11 @@ namespace VirtualPiano_AutoPlayer
                 return;
             }
 
-            // Starte das Abspielen
+            StatusText.Text = "Status: Preparing to play...";
+
+            // 3-second initial delay
+            await Task.Delay(3000);
+
             StatusText.Text = "Status: Playing...";
             _cancellationTokenSource = new CancellationTokenSource();
 
@@ -61,27 +66,37 @@ namespace VirtualPiano_AutoPlayer
 
         private async Task PlayMusicSheet(string sheet, CancellationToken token)
         {
-            // Zerlege das Music Sheet in einzelne Kommandos
-            string[] commands = sheet.Split(' ');
-
-            foreach (string command in commands)
+            foreach (char command in sheet)
             {
                 token.ThrowIfCancellationRequested();
 
-                if (command.StartsWith("[") && command.EndsWith("]"))
+                if (command == ' ')
                 {
-                    // Simultane Tastenanschläge, z. B. [fh]
-                    string simultaneousKeys = command.Trim('[', ']');
-                    PressKeysSimultaneously(simultaneousKeys);
+                    // Short pause for space
+                    await Task.Delay(400, token);
+                }
+                else if (command == '|')
+                {
+                    // 1-second pause for '|'
+                    await Task.Delay(1000, token);
+                }
+                else if (command == '[')
+                {
+                    // Handle simultaneous key presses
+                    int endIndex = sheet.IndexOf(']', sheet.IndexOf(command));
+                    if (endIndex != -1)
+                    {
+                        string simultaneousKeys = sheet.Substring(sheet.IndexOf(command) + 1, endIndex - sheet.IndexOf(command) - 1);
+                        PressKeysSimultaneously(simultaneousKeys);
+                        await Task.Delay(400, token);
+                    }
                 }
                 else
                 {
-                    // Einzelner Tastenanschlag, z. B. a, p
-                    PressKey(command);
+                    // Regular key press
+                    PressKey(command.ToString());
+                    await Task.Delay(400, token);
                 }
-
-                // Warte zwischen den Noten (300ms als Standard)
-                await Task.Delay(300, token);
             }
         }
 
@@ -103,6 +118,61 @@ namespace VirtualPiano_AutoPlayer
             {
                 // Simuliere jeden Tastenanschlag
                 simulator.Keyboard.TextEntry(key.ToString());
+            }
+        }
+
+        private void LoadButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    MusicSheetInput.Text = File.ReadAllText(openFileDialog.FileName);
+
+                    // Set the Title to the filename without extension
+                    Title.Text = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+
+                    StatusText.Text = "Status: Music sheet loaded successfully!";
+                }
+                catch (Exception ex)
+                {
+                    StatusText.Text = $"Status: Error loading file - {ex.Message}";
+                }
+            }
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(Title.Text))
+            {
+                StatusText.Text = "Status: Please enter a title for the music sheet.";
+                return;
+            }
+
+            string defaultFileName = Title.Text.Trim();
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
+                FileName = defaultFileName
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    File.WriteAllText(saveFileDialog.FileName, MusicSheetInput.Text);
+                    StatusText.Text = "Status: Music sheet saved successfully!";
+                }
+                catch (Exception ex)
+                {
+                    StatusText.Text = $"Status: Error saving file - {ex.Message}";
+                }
             }
         }
     }

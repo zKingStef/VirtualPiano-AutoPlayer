@@ -4,15 +4,22 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Virtual Piano AutoPlayer" Height="450" Width="800">
+        Title="Virtual Piano AutoPlayer" Height="450" Width="600">
     <Grid>
+        <!-- Hintergrundbild -->
+        <Image Source="/Piano.png" 
+               Stretch="Fill" 
+               HorizontalAlignment="Stretch" 
+               VerticalAlignment="Stretch" 
+               Panel.ZIndex="-1" />
+
         <!-- Eingabefeld für das Music Sheet -->
         <TextBox x:Name="MusicSheetInput" 
-                 HorizontalAlignment="Left" 
+                 HorizontalAlignment="Center" 
                  VerticalAlignment="Top" 
-                 Margin="20,20,0,0" 
-                 Width="740" 
-                 Height="200" 
+                 Margin="0,34,0,0" 
+                 Width="560" 
+                 Height="169" 
                  TextWrapping="Wrap" 
                  AcceptsReturn="True" 
                  FontSize="16" 
@@ -23,30 +30,53 @@
                 Content="Play" 
                 HorizontalAlignment="Left" 
                 VerticalAlignment="Top" 
-                Margin="20,240,0,0" 
+                Margin="20,368,0,0" 
                 Width="100" 
                 Height="40"
                 FontSize="16" 
-                Click="PlayButton_Click" />
+                Click="PlayButton_Click" Background="#FF5BED57" />
 
         <!-- Stop Button -->
         <Button x:Name="StopButton" 
                 Content="Stop" 
                 HorizontalAlignment="Left" 
                 VerticalAlignment="Top" 
-                Margin="140,240,0,0" 
+                Margin="135,368,0,0" 
                 Width="100" 
                 Height="40"
                 FontSize="16" 
-                Click="StopButton_Click" />
+                Click="StopButton_Click" RenderTransformOrigin="0.505,3.576" Background="#FFEF4444" />
+
+        <!-- Load Button -->
+        <Button x:Name="LoadButton" 
+                Content="Load" 
+                HorizontalAlignment="Left" 
+                VerticalAlignment="Top" 
+                Margin="375,368,0,0" 
+                Width="100" 
+                Height="40"
+                FontSize="16" 
+                Click="LoadButton_Click" Background="#FF56DCE6" />
+
+        <!-- Save Button -->
+        <Button x:Name="SaveButton" 
+                Content="Save" 
+                HorizontalAlignment="Left" 
+                VerticalAlignment="Top" 
+                Margin="490,368,0,0" 
+                Width="100" 
+                Height="40"
+                FontSize="16" 
+                Click="SaveButton_Click" Background="#FFE2D97C" />
 
         <!-- Statusanzeige -->
         <TextBlock x:Name="StatusText" 
-                   HorizontalAlignment="Left" 
+                   HorizontalAlignment="Center" 
                    VerticalAlignment="Top" 
-                   Margin="20,300,0,0" 
+                   Margin="0,344,0,0" 
                    FontSize="14" 
-                   Text="Status: Ready to play!" />
+                   Text="Status: Ready to play!" Foreground="Black" FontWeight="Bold" />
+        <TextBox x:Name="Title" HorizontalAlignment="Center" Margin="0,8,0,0" TextWrapping="Wrap" Text="Song" FontSize ="18" VerticalAlignment="Top" Width="174" Height="26"/>
 
     </Grid>
 </Window>

@@ -7,11 +7,24 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Images\PianoIcon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Piano.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\PianoIcon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="InputSimulator" Version="1.0.4" />
     <PackageReference Include="System.Windows.Forms.Ribbon35" Version="3.5.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Piano.png" />
   </ItemGroup>
 
 </Project>

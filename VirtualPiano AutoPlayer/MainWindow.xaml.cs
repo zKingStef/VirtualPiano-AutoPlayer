@@ -8,9 +8,6 @@ using WindowsInput.Native;
 
 namespace VirtualPiano_AutoPlayer
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private CancellationTokenSource _cancellationTokenSource;
@@ -32,7 +29,6 @@ namespace VirtualPiano_AutoPlayer
 
             StatusText.Text = "Status: Preparing to play...";
 
-            // 3-second initial delay
             await Task.Delay(3000);
 
             StatusText.Text = "Status: Playing...";
@@ -55,7 +51,6 @@ namespace VirtualPiano_AutoPlayer
 
         private void StopButton_Click(object sender, RoutedEventArgs e)
         {
-            // Stoppe das Abspielen
             if (_cancellationTokenSource != null)
             {
                 _cancellationTokenSource.Cancel();
@@ -66,36 +61,38 @@ namespace VirtualPiano_AutoPlayer
 
         private async Task PlayMusicSheet(string sheet, CancellationToken token)
         {
-            foreach (char command in sheet)
+            sheet = sheet.Replace("\r", "").Replace("\n", "").Trim();
+
+            for (int i = 0; i < sheet.Length; i++)
             {
                 token.ThrowIfCancellationRequested();
+                char command = sheet[i];
+
+                await Task.Delay(200, token);
 
                 if (command == ' ')
                 {
-                    // Short pause for space
-                    await Task.Delay(400, token);
+                    await Task.Delay(300, token);
                 }
                 else if (command == '|')
                 {
-                    // 1-second pause for '|'
                     await Task.Delay(1000, token);
                 }
                 else if (command == '[')
                 {
-                    // Handle simultaneous key presses
-                    int endIndex = sheet.IndexOf(']', sheet.IndexOf(command));
+                    int endIndex = sheet.IndexOf(']', i);
                     if (endIndex != -1)
                     {
-                        string simultaneousKeys = sheet.Substring(sheet.IndexOf(command) + 1, endIndex - sheet.IndexOf(command) - 1);
+                        string simultaneousKeys = sheet.Substring(i + 1, endIndex - i - 1);
                         PressKeysSimultaneously(simultaneousKeys);
-                        await Task.Delay(400, token);
+                        await Task.Delay(300, token);
+                        i = endIndex;
                     }
                 }
                 else
                 {
-                    // Regular key press
                     PressKey(command.ToString());
-                    await Task.Delay(400, token);
+                    await Task.Delay(300, token);
                 }
             }
         }
@@ -105,7 +102,6 @@ namespace VirtualPiano_AutoPlayer
             var simulator = new InputSimulator();
             Console.WriteLine($"Pressing key: {key}");
 
-            // Simuliere den Tastendruck
             simulator.Keyboard.TextEntry(key);
         }
 
@@ -116,7 +112,6 @@ namespace VirtualPiano_AutoPlayer
 
             foreach (char key in keys)
             {
-                // Simuliere jeden Tastenanschlag
                 simulator.Keyboard.TextEntry(key.ToString());
             }
         }
@@ -134,7 +129,6 @@ namespace VirtualPiano_AutoPlayer
                 {
                     MusicSheetInput.Text = File.ReadAllText(openFileDialog.FileName);
 
-                    // Set the Title to the filename without extension
                     Title.Text = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
 
                     StatusText.Text = "Status: Music sheet loaded successfully!";
